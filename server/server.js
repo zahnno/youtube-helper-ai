@@ -1,8 +1,7 @@
 const express = require('express');
 const { exec } = require('child_process');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 9000;
@@ -10,38 +9,32 @@ const PORT = process.env.PORT || 9000;
 app.use(cors());
 app.use(express.json());
 
+// Set up session management
+app.use(session({
+    secret: 'your_secret_key', // Change this to a secure random value
+    resave: false,
+    saveUninitialized: true,
+}));
+
+// In-memory store for transcripts
+const transcripts = {};
+
 function parseVTT(vttData) {
-  const cleanedData = vttData
-      .split('\n')
-      .filter(line => {
-          return !/^\d{2}:\d{2}:\d{2}/.test(line) && line.trim() !== '';
-      })
-      .join(' ')
-      .replace(/<c>.*?<\/c>/g, '')
-      .replace(/\[Music\]/g, '')
-      .trim();
+    const cleanedData = vttData
+        .split('\n')
+        .filter(line => !/^\d{2}:\d{2}:\d{2}/.test(line) && line.trim() !== '')
+        .join(' ')
+        .replace(/<c>.*?<\/c>/g, '')
+        .replace(/\[Music\]/g, '')
+        .trim();
 
-  const formattedText = cleanedData.replace(/\s+/g, ' ');
-  const sentences = formattedText.split(' ')
-      .map((word, index) => {
-          if (word.toLowerCase() === 'and' && index < formattedText.split(' ').length - 1) {
-              return word + ',';
-          }
-          return word;
-      })
-      .join(' ');
-
-  const regex = /<\d{2}:\d{2}:\d{2}\.\d{3}>/g;
-  const dialogueParts = sentences.trim().split(regex).filter(part => part.trim() !== '');
-  const dialogue = dialogueParts.map(part => part.trim());
-
-  return dialogue;
+    return cleanedData.replace(/\s+/g, ' ').trim();
 }
 
-app.get('/transcript', (req, res) => {
+app.post('/transcript', (req, res) => {
     const videoUrl = req.body.url;
 
-    exec(`yt-dlp --skip-download --write-auto-subs --sub-langs "en" https://www.youtube.com/watch?v=c0uyU53ma8Y`, (error, stdout, stderr) => {
+    exec(`yt-dlp --skip-download --write-auto-subs --sub-langs "en" --stdout ${videoUrl}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error: ${error.message}`);
             return res.status(500).json({ error: error.message });
@@ -50,29 +43,28 @@ app.get('/transcript', (req, res) => {
             console.error(`stderr: ${stderr}`);
             return res.status(500).json({ error: stderr });
         }
-        
-        // Get the name of the downloaded subtitle file
-        const subtitleFileName = stdout.match(/Writing video subtitles to: (.+)/)?.[1];
-        
-        if (subtitleFileName) {
-            const subtitleFilePath = path.resolve(subtitleFileName);
 
-            // Read the subtitle file
-            fs.readFile(subtitleFilePath, 'utf8', (err, data) => {
-                if (err) {
-                    console.error(`Error reading file: ${err.message}`);
-                    return res.status(500).json({ error: err.message });
-                }
-                // Send the subtitle text back as the response
-                parsedText = parseVTT(data);
-                res.json({ parsedText });
-            });
-        } else {
-            res.json({ transcript: "No subtitles found." });
-        }
+        // Parse the output directly without saving to a file
+        const parsedText = parseVTT(stdout);
+
+        // Store the transcript in the session
+        transcripts[req.session.id] = parsedText;
+
+        res.json({ parsedText });
     });
 });
 
+// Endpoint to retrieve transcript for the current session
+app.get('/transcript', (req, res) => {
+    const userTranscript = transcripts[req.session.id];
+
+    if (userTranscript) {
+        res.json({ transcript: userTranscript });
+    } else {
+        res.json({ message: "No transcript found for this session." });
+    }
+});
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });

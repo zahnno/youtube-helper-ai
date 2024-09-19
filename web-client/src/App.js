@@ -1,6 +1,13 @@
 import './App.css';
 import React from 'react';
 import { useState } from 'react';
+import YouTubePreview from './YouTubePreview';
+import Chat from './Chat';
+
+const isValidYouTubeUrl = (url) => {
+  const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+  return regex.test(url);
+};
 
 function App() {
   const [link, setLink] = useState('');
@@ -68,6 +75,8 @@ function App() {
     transition: 'background-color 0.3s',
   };
 
+  const isValidUrl = link && isValidYouTubeUrl(link);
+
   return (
     <div className="app-body">
       <h1>Youtube Helper AI</h1>
@@ -84,6 +93,9 @@ function App() {
         />
         <button type="submit" style={buttonStyle}>Submit</button>
       </form>
+      { isValidUrl && <YouTubePreview url={link} /> }
+      { isValidUrl && <Chat /> }
+      { link && !isValidUrl && <p style={{color: 'red'}}>Please enter a valid YouTube URL.</p> }
     </div>
   );
 };
