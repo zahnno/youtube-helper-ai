@@ -21,7 +21,7 @@ function App() {
     e.preventDefault();
     console.log('Submitted link:', link);
     try {
-      const response = await fetch('http://localhost:4000/captions', {
+      const response = await fetch('http://localhost:9000/transcript', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,6 +29,7 @@ function App() {
         body: JSON.stringify({ url: link }),
       });
       const data = await response.json();
+      console.log(data)
       setCaptions(data);
     } catch (error) {
       console.error('Error:', error);
@@ -94,7 +95,7 @@ function App() {
         <button type="submit" style={buttonStyle}>Submit</button>
       </form>
       { isValidUrl && <YouTubePreview url={link} /> }
-      { isValidUrl && <Chat /> }
+      { isValidUrl && <Chat url={link} /> }
       { link && !isValidUrl && <p style={{color: 'red'}}>Please enter a valid YouTube URL.</p> }
     </div>
   );

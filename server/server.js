@@ -39,10 +39,12 @@ app.post('/chat', (req, res) => {
   const { url } = req.body.url;
   const transcript = transcripts[url];
 
+  console.log('Previous transcript found:', transcript);
+
   if (!transcript) {
-    getTranscript(videoUrl, (error, parsedText) => {
+    getTranscript(url, (error, parsedText) => {
       if (error) return res.status(error.status).json({ message: error.message });
-      transcripts[videoUrl] = parsedText;
+      transcripts[url] = parsedText;
       transcript = parsedText;
     });
   }

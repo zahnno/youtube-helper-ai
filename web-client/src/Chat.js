@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Chat = ({url}) => {
+const Chat = ({url, link}) => {
   const [inputValue, setInputValue] = useState('');
   const [responseMessages, setResponseMessages] = useState([]);
 
@@ -13,12 +13,12 @@ const Chat = ({url}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:4000/chat', {
+      const response = await fetch('http://localhost:9000/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userInput: inputValue, url: url }),
+        body: JSON.stringify({ userInput: inputValue, url: link }),
       });
 
       const data = await response.json();
@@ -102,7 +102,7 @@ const Chat = ({url}) => {
         <button type="submit" style={styles.button}>Submit</button>
       </form>
       <div>
-        {responseMessage && <p style={styles.responseMessage}>{responseMessage}</p>}
+        {responseMessages && <p style={styles.responseMessage}>{responseMessages.message}</p>}
       </div>
     </div>
   );
