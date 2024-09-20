@@ -2,6 +2,8 @@ const express = require('express');
 const { exec } = require('child_process');
 const cors = require('cors');
 const session = require('express-session');
+const { getTranscript } = require('./transcriber');
+const { geminiAIChat } = require('./gemini');
 
 const app = express();
 const PORT = process.env.PORT || 9000;
@@ -11,7 +13,7 @@ app.use(express.json());
 
 // Set up session management
 app.use(session({
-    secret: 'your_secret_key', // Change this to a secure random value
+    secret: '38dba03e1256ff2a7e65a11153f0a6b0117f87502ac7897fe7177bd38e0571dd',
     resave: false,
     saveUninitialized: true,
 }));
@@ -19,50 +21,43 @@ app.use(session({
 // In-memory store for transcripts
 const transcripts = {};
 
-function parseVTT(vttData) {
-    const cleanedData = vttData
-        .split('\n')
-        .filter(line => !/^\d{2}:\d{2}:\d{2}/.test(line) && line.trim() !== '')
-        .join(' ')
-        .replace(/<c>.*?<\/c>/g, '')
-        .replace(/\[Music\]/g, '')
-        .trim();
-
-    return cleanedData.replace(/\s+/g, ' ').trim();
-}
-
 app.post('/transcript', (req, res) => {
-    const videoUrl = req.body.url;
+  const videoUrl = req.body.url;
 
-    exec(`yt-dlp --skip-download --write-auto-subs --sub-langs "en" --stdout ${videoUrl}`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error.message}`);
-            return res.status(500).json({ error: error.message });
-        }
-        if (stderr) {
-            console.error(`stderr: ${stderr}`);
-            return res.status(500).json({ error: stderr });
-        }
-
-        // Parse the output directly without saving to a file
-        const parsedText = parseVTT(stdout);
-
-        // Store the transcript in the session
-        transcripts[req.session.id] = parsedText;
-
-        res.json({ parsedText });
-    });
+  getTranscript(videoUrl, (error, parsedText) => {
+      if (error) {
+          return res.status(error.status).json({ message: error.message });
+      }
+      transcripts[videoUrl] = parsedText;
+      res.json({ parsedText });
+  });
 });
 
-// Endpoint to retrieve transcript for the current session
-app.get('/transcript', (req, res) => {
-    const userTranscript = transcripts[req.session.id];
+// Endpoint to chat with transcript context
+app.post('/chat', (req, res) => {
+  const { userInput } = req.body.userInput;
+  const { url } = req.body.url;
+  const transcript = transcripts[url];
 
-    if (userTranscript) {
-        res.json({ transcript: userTranscript });
-    } else {
-        res.json({ message: "No transcript found for this session." });
+  if (!transcript) {
+    getTranscript(videoUrl, (error, parsedText) => {
+      if (error) return res.status(error.status).json({ message: error.message });
+      transcripts[videoUrl] = parsedText;
+      transcript = parsedText;
+    });
+  }
+
+  if ( transcript && process.env.GEMINI_API_KEY ) {
+    // execute gemini command chat
+    try {
+      const geminiResponse = geminiAIChat({ transcript, userInput });
+      res.json({message: geminiResponse});
+    } catch (error) {
+      res.json({ message: "There was an error processing your request." });
     }
+  } else {
+    res.json({ message: "No transcript found for this url." });
+  }
 });
 
 app.listen(PORT, () => {

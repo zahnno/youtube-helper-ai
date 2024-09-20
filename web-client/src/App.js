@@ -26,7 +26,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ link }),
+        body: JSON.stringify({ url: link }),
       });
       const data = await response.json();
       setCaptions(data);

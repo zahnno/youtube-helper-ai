@@ -1,28 +1,46 @@
 import React, { useState } from 'react';
 
-const Chat = () => {
+const Chat = ({url}) => {
   const [inputValue, setInputValue] = useState('');
-  const [responseMessage, setResponseMessage] = useState('');
+  const [responseMessages, setResponseMessages] = useState([]);
 
+  // Handle input change
   const handleInputChange = (e) => {
     setInputValue(e.target.value);
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('https://your-api-url.com/endpoint', {
+      const response = await fetch('http://localhost:4000/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userInput: inputValue }),
+        body: JSON.stringify({ userInput: inputValue, url: url }),
       });
 
       const data = await response.json();
-      setResponseMessage(data.message || 'Success!');
+      
+      // Get the current timestamp
+      const timestamp = new Date().toLocaleString();
+
+      // Push new message and timestamp to responseMessages
+      setResponseMessages((prevMessages) => [
+        ...prevMessages,
+        { message: data.message || 'Success!', timestamp },
+      ]);
+
+      // Clear the input after submission
+      setInputValue('');
     } catch (error) {
-      setResponseMessage('Error occurred while sending data.');
+      // Handle error with timestamp
+      const timestamp = new Date().toLocaleString();
+      setResponseMessages((prevMessages) => [
+        ...prevMessages,
+        { message: 'Error occurred while sending data.', timestamp },
+      ]);
     }
   };
 
@@ -37,10 +55,18 @@ const Chat = () => {
     },
     input: {
       width: '100%',
+      height: '150px',
       padding: '10px',
       marginBottom: '10px',
       border: '1px solid #ccc',
       borderRadius: '4px',
+      boxSizing: 'border-box',
+      fontSize: '16px',
+      lineHeight: '1.5',
+      resize: 'vertical',
+      overflowY: 'auto',
+      whiteSpace: 'pre-wrap',
+      verticalAlign: 'top',  
     },
     button: {
       width: '100%',
@@ -65,7 +91,7 @@ const Chat = () => {
     <div style={styles.container}>
       <h2 style={styles.header}>Ask your question about the video!</h2>
       <form onSubmit={handleSubmit}>
-        <input
+        <textarea
           type="text"
           value={inputValue}
           onChange={handleInputChange}
@@ -75,7 +101,9 @@ const Chat = () => {
         />
         <button type="submit" style={styles.button}>Submit</button>
       </form>
-      {responseMessage && <p style={styles.responseMessage}>{responseMessage}</p>}
+      <div>
+        {responseMessage && <p style={styles.responseMessage}>{responseMessage}</p>}
+      </div>
     </div>
   );
 };
