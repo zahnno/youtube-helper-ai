@@ -18,6 +18,7 @@ Before you begin, ensure you have the following installed on your machine:
 - [Node.js](https://nodejs.org/) (v14 or higher)
 - [Yarn](https://yarnpkg.com/getting-started/install)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)
+- Your own gemini api key
 
 ### Installation
 
