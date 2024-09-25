@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 
-const Chat = ({url}) => {
+const Chat = ({ url }) => {
   const [inputValue, setInputValue] = useState('');
   const [responseMessages, setResponseMessages] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const chatContainerRef = useRef(null); // Reference to the chat container
+
+  // Scroll to the bottom whenever responseMessages changes
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [responseMessages]);
 
   // Handle input change
   const handleInputChange = (e) => {
@@ -20,6 +31,11 @@ const Chat = ({url}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsProcessing(true);
+      const userText = inputValue;
+
+      // Clear the input after submission
+      setInputValue('');
 
       setResponseMessages((prevMessages) => [
         ...prevMessages,
@@ -31,23 +47,23 @@ const Chat = ({url}) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userInput: inputValue, videoUrl: url }),
+        body: JSON.stringify({ userInput: userText, videoUrl: url }),
       });
 
       const data = await response.json();
-      
+
       // Get the current timestamp
       const timestamp = new Date().toLocaleString();
-      console.log('response AI:', data.message)
+      console.log('response AI:', data.message);
+
       // Push new message and timestamp to responseMessages
       setResponseMessages((prevMessages) => [
         ...prevMessages,
         { message: data.message, timestamp, user: false },
       ]);
-
-      // Clear the input after submission
-      setInputValue('');
+      setIsProcessing(false);
     } catch (error) {
+      setIsProcessing(false);
       // Handle error with timestamp
       const timestamp = new Date().toLocaleString();
       setResponseMessages((prevMessages) => [
@@ -77,7 +93,7 @@ const Chat = ({url}) => {
       alignItems: 'center',
     },
     input: {
-      width: '100%',
+      width: '96%',
       height: '100px',
       padding: '10px',
       fontSize: '16px',
@@ -105,6 +121,7 @@ const Chat = ({url}) => {
       overflowY: 'auto',
       padding: '10px',
       borderRadius: '6px',
+      marginBottom: '25px',
     },
     chatBubble: {
       backgroundColor: '#fff',
@@ -117,20 +134,21 @@ const Chat = ({url}) => {
       position: 'relative',
     },
     userChatBubble: {
-      backgroundColor: '#dcf8c6', // Light green color similar to Android style
+      backgroundColor: '#dcf8c6',
       padding: '10px 15px',
       borderRadius: '20px',
       marginBottom: '10px',
       maxWidth: '80%',
-      alignSelf: 'flex-end', // Aligns the user chat to the right
+      alignSelf: 'flex-end',
       boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
       position: 'relative',
-      left: '90px'
+      left: '90px',
     },
     messageText: {
       fontSize: '14px',
       color: '#333',
       margin: 0,
+      float: 'left'
     },
     timestamp: {
       fontSize: '12px',
@@ -139,11 +157,24 @@ const Chat = ({url}) => {
       display: 'block',
       textAlign: 'right',
     },
-  };  
+  };
 
   return (
     <div style={styles.container}>
       <h2 style={styles.header}>Ask your question about the video!</h2>
+      <div style={styles.chatContainer} ref={chatContainerRef}>
+        {responseMessages &&
+          responseMessages.map((response, index) => (
+            <div
+              key={index}
+              style={response.user ? styles.userChatBubble : styles.chatBubble}
+            >
+              {response.user ? <p style={styles.messageText}>{response.message}</p> : <ReactMarkdown style={styles.messageText}>{response.message}</ReactMarkdown> }
+              <span style={styles.timestamp}>{response.timestamp}</span>
+            </div>
+          ))}
+        {isProcessing && ( <p styles={{fontSize: '16px', fontWeight: 'bold' }}>...</p> )}
+      </div>
       <form onSubmit={handleSubmit} style={styles.form}>
         <textarea
           type="text"
@@ -156,21 +187,8 @@ const Chat = ({url}) => {
         />
         <button type="submit" style={styles.button}>Submit</button>
       </form>
-      <div style={styles.chatContainer}>
-        {responseMessages && responseMessages.map((response, index) => (
-          <div 
-            key={index} 
-            style={response.user ? styles.userChatBubble : styles.chatBubble}
-          >
-            <p style={styles.messageText}>{response.message}</p>
-            <span style={styles.timestamp}>{response.timestamp}</span>
-          </div>
-        ))}
-      </div>
     </div>
   );
-  
-  
 };
 
 export default Chat;
