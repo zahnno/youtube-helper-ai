@@ -48,16 +48,17 @@ app.post('/chat', (req, res) => {
       transcript = parsedText;
       if ( transcript && process.env.GEMINI_API_KEY ) {
         try {
-          const geminiResponse = geminiAIChat({ transcript, userInput });
-          res.json({message: geminiResponse});
+          geminiAIChat({ transcript, userInput }).then((response) => { 
+            res.json({message: response});
+          }).catch((error) => {
+            res.json({ message: "There was an error processing your request." });
+          });
         } catch (error) {
           res.json({ message: "There was an error processing your request." });
         }
       }
     });
-  }
-
-  if ( transcript && process.env.GEMINI_API_KEY ) {
+  } else if ( transcript && process.env.GEMINI_API_KEY ) {
     // execute gemini command chat
     try {
       geminiAIChat({ transcript, userInput }).then((response) => { 
@@ -69,7 +70,7 @@ app.post('/chat', (req, res) => {
       res.json({ message: "There was an error processing your request." });
     }
   } else {
-    res.json({ message: "No transcript found for this url." });
+    res.json({ message: "Something went wrong." });
   }
 });
 

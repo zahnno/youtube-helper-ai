@@ -9,6 +9,13 @@ const Chat = ({url}) => {
     setInputValue(e.target.value);
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault(); // Prevents newline when 'Enter' is pressed
+      handleSubmit(event);    // Calls the submit function
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +61,7 @@ const Chat = ({url}) => {
     container: {
       width: '600px',
       margin: '0 auto',
-      padding: '40px',
+      padding: '15px 40px',
       borderRadius: '8px',
       boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
     },
@@ -142,6 +149,7 @@ const Chat = ({url}) => {
           type="text"
           value={inputValue}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           placeholder="Type something..."
           required
           style={styles.input}

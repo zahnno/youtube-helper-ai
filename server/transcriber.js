@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 const fs = require('fs');
-const path = require('path');
+const { get } = require('https');
 
 const youtubeUrlRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/(watch\?v=)?[A-Za-z0-9_-]{11}$/;
 
@@ -14,6 +14,40 @@ function parseVTT(vttData) {
       .trim(); // Trim leading and trailing spaces
 
   return cleanedData.split('\n').map(segment => segment.trim()).filter(Boolean).join(' ');
+}
+
+function getVideoInfo(url) {
+  return new Promise((resolve, reject) => {
+      exec(`yt-dlp -J ${url}`, (error, stdout, stderr) => {
+          if (error) {
+              console.error(`Error: ${error.message}`);
+              reject(error);
+              return;
+          }
+          if (stderr) {
+              console.error(`Error: ${stderr}`);
+              reject(stderr);
+              return;
+          }
+
+          try {
+              // Parse the output into JSON
+              const videoInfo = JSON.parse(stdout);
+              
+              // Extracting required fields
+              const data = {
+                  title: videoInfo.title,
+                  description: videoInfo.description,
+                  channel: videoInfo.uploader,
+              };
+
+              resolve(data);
+          } catch (parseError) {
+              console.error('Error parsing JSON:', parseError);
+              reject(parseError);
+          }
+      });
+  });
 }
 
 function getTranscript(videoUrl, callback) {
@@ -43,15 +77,19 @@ function getTranscript(videoUrl, callback) {
                 return callback({ status: 500, message: err.message });
             }
 
-            // Parse the VTT output
-            const parsedText = parseVTT(vttData);
-            console.log(parsedText)
-            // Return parsed transcript via callback
-            callback(null, parsedText);
-
-            // Optionally, delete the file after reading
+            // delete the file after reading
             fs.unlink(vttFileName, (unlinkErr) => {
                 if (unlinkErr) console.error(`Error deleting file: ${unlinkErr.message}`);
+            });
+
+            // Parse the VTT output
+            let parsedText = parseVTT(vttData);
+            getVideoInfo(videoUrl).then((videoInfo) => {
+                parsedText += `\n\nTitle: ${videoInfo.title}\nDescription: ${videoInfo.description}\nChannel: ${videoInfo.channel}`;
+                console.log(parsedText)
+                return callback(null, parsedText);
+            }).catch((error) => {
+              return callback({ status: 500, message: error });
             });
         });
     });
