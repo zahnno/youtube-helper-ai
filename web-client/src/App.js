@@ -3,6 +3,8 @@ import React from 'react';
 import { useState } from 'react';
 import YouTubePreview from './YouTubePreview';
 import Chat from './Chat';
+import ReactMarkdown from 'react-markdown';
+import { markdownContentIntro } from './introText';
 
 const isValidYouTubeUrl = (url) => {
   const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
@@ -48,7 +50,9 @@ function App() {
 
   return (
     <div className="app-body">
-      <h1>Youtube Helper AI</h1>
+      <div style={{ width: '600px'}}>
+        <ReactMarkdown>{markdownContentIntro}</ReactMarkdown>
+      </div>
       <form style={formStyle} onSubmit={null}>
         <label htmlFor="linkInput" style={labelStyle}>Link:</label>
         <input

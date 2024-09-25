@@ -24,6 +24,7 @@ async function geminiAIChat({ transcript, userInput}) {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest", safetySettings: safetySettings });
   const text = `
     Moving forward in this converation you will be acting as a youtube helper that interprets video transcripts.
+    If the user asks for questions outside of the video context, please answer it to the best of your ability.
     Digest the following transcript: ${transcript}
   `;
   try {
