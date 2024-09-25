@@ -1,9 +1,9 @@
 const express = require('express');
-const { exec } = require('child_process');
 const cors = require('cors');
 const session = require('express-session');
 const { getTranscript } = require('./transcriber');
 const { geminiAIChat } = require('./gemini');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 9000;
@@ -35,25 +35,36 @@ app.post('/transcript', (req, res) => {
 
 // Endpoint to chat with transcript context
 app.post('/chat', (req, res) => {
-  const { userInput } = req.body.userInput;
-  const { url } = req.body.url;
-  const transcript = transcripts[url];
+  const { userInput, videoUrl } = req.body;
+  let transcript = transcripts[videoUrl];
 
   console.log('Previous transcript found:', transcript);
+  console.log(!transcript);
 
   if (!transcript) {
-    getTranscript(url, (error, parsedText) => {
+    getTranscript(videoUrl, (error, parsedText) => {
       if (error) return res.status(error.status).json({ message: error.message });
-      transcripts[url] = parsedText;
+      transcripts[videoUrl] = parsedText;
       transcript = parsedText;
+      if ( transcript && process.env.GEMINI_API_KEY ) {
+        try {
+          const geminiResponse = geminiAIChat({ transcript, userInput });
+          res.json({message: geminiResponse});
+        } catch (error) {
+          res.json({ message: "There was an error processing your request." });
+        }
+      }
     });
   }
 
   if ( transcript && process.env.GEMINI_API_KEY ) {
     // execute gemini command chat
     try {
-      const geminiResponse = geminiAIChat({ transcript, userInput });
-      res.json({message: geminiResponse});
+      geminiAIChat({ transcript, userInput }).then((response) => { 
+        res.json({message: response});
+      }).catch((error) => {
+        res.json({ message: "There was an error processing your request." });
+      });
     } catch (error) {
       res.json({ message: "There was an error processing your request." });
     }

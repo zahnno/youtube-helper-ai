@@ -11,30 +11,9 @@ const isValidYouTubeUrl = (url) => {
 
 function App() {
   const [link, setLink] = useState('');
-  const [captions, setCaptions] = useState('');
 
   const handleChange = (e) => {
     setLink(e.target.value);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('Submitted link:', link);
-    try {
-      const response = await fetch('http://localhost:9000/transcript', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: link }),
-      });
-      const data = await response.json();
-      console.log(data)
-      setCaptions(data);
-    } catch (error) {
-      console.error('Error:', error);
-      setCaptions('An error occurred. Please try again later.');
-    }
   };
 
   const formStyle = {
@@ -65,23 +44,12 @@ function App() {
     transition: 'border-color 0.3s',
   };
 
-  const buttonStyle = {
-    padding: '10px',
-    backgroundColor: '#007bff',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s',
-  };
-
   const isValidUrl = link && isValidYouTubeUrl(link);
 
   return (
     <div className="app-body">
       <h1>Youtube Helper AI</h1>
-      <form style={formStyle} onSubmit={handleSubmit}>
+      <form style={formStyle} onSubmit={null}>
         <label htmlFor="linkInput" style={labelStyle}>Link:</label>
         <input
           type="text"
@@ -92,7 +60,6 @@ function App() {
           required
           style={inputStyle}
         />
-        <button type="submit" style={buttonStyle}>Submit</button>
       </form>
       { isValidUrl && <YouTubePreview url={link} /> }
       { isValidUrl && <Chat url={link} /> }

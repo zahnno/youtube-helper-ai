@@ -16,8 +16,6 @@ function parseVTT(vttData) {
   return cleanedData.split('\n').map(segment => segment.trim()).filter(Boolean).join(' ');
 }
 
-
-
 function getTranscript(videoUrl, callback) {
     // Validate the YouTube URL
     if (!youtubeUrlRegex.test(videoUrl)) {
