@@ -1,10 +1,15 @@
 # YouTube Video Digest AI
 
-Welcome to the **YouTube Video Digest AI** repository! This project allows users to digest YouTube videos using Google Gemini and interactively ask questions about the content of the provided video URL. 
+Welcome to the **YouTube Video Digest AI** repository! This project allows users to digest YouTube videos using Google Gemini and interactively ask questions about the content of the provided video URL.
 
 ## Features
 - **Digest YouTube Videos**: Analyze video content through Google Gemini.
 - **Interactive Q&A**: Ask questions related to the video and receive informative answers.
+
+  
+## Preview
+<img width="300" alt="intro" src="https://github.com/user-attachments/assets/97341e29-120b-4ecd-ac7f-54b6fa90c1aa">
+<img width="300" alt="chat" src="https://github.com/user-attachments/assets/966e8acd-82be-4d52-98c8-16231e058cd3">
 
 ## Getting Started
 
