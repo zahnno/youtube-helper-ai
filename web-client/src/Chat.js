@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-const Chat = ({ url }) => {
+const Chat = ({ url, model }) => {
   const [inputValue, setInputValue] = useState('');
   const [responseMessages, setResponseMessages] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -47,7 +47,7 @@ const Chat = ({ url }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userInput: userText, videoUrl: url }),
+        body: JSON.stringify({ userInput: userText, videoUrl: url, model: model }),
       });
 
       const data = await response.json();

@@ -86,7 +86,6 @@ function getTranscript(videoUrl, callback) {
             let parsedText = parseVTT(vttData);
             getVideoInfo(videoUrl).then((videoInfo) => {
                 parsedText += `\n\nTitle: ${videoInfo.title}\nDescription: ${videoInfo.description}\nChannel: ${videoInfo.channel}`;
-                console.log(parsedText)
                 return callback(null, parsedText);
             }).catch((error) => {
               return callback({ status: 500, message: error });

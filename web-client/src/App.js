@@ -5,6 +5,7 @@ import YouTubePreview from './YouTubePreview';
 import Chat from './Chat';
 import ReactMarkdown from 'react-markdown';
 import { markdownContentIntro } from './introText';
+import Model from './Model';
 
 const isValidYouTubeUrl = (url) => {
   const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
@@ -13,6 +14,7 @@ const isValidYouTubeUrl = (url) => {
 
 function App() {
   const [link, setLink] = useState('');
+  const [model, setModel] = useState('');
 
   const handleChange = (e) => {
     setLink(e.target.value);
@@ -53,6 +55,7 @@ function App() {
       <div style={{ width: '600px'}}>
         <ReactMarkdown>{markdownContentIntro}</ReactMarkdown>
       </div>
+      <Model model={model} setModel={setModel} />
       <form style={formStyle} onSubmit={null}>
         <label htmlFor="linkInput" style={labelStyle}>Link:</label>
         <input
@@ -66,7 +69,7 @@ function App() {
         />
       </form>
       { isValidUrl && <YouTubePreview url={link} /> }
-      { isValidUrl && <Chat url={link} /> }
+      { isValidUrl && <Chat url={link} model={model} /> }
       { link && !isValidUrl && <p style={{color: 'red'}}>Please enter a valid YouTube URL.</p> }
     </div>
   );

@@ -11,3 +11,30 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.dropdown-container {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+  display: flex;
+  max-width: 200px;
+  flex-direction: column;
+}
+
+.dropdown-select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.dropdown-select:hover {
+  border-color: #888;
+}
+
+.selected-option {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}

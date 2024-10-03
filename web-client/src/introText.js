@@ -13,7 +13,7 @@ Whether you’re studying, researching, or just curious about a topic, our helpe
 
 ## Get Started!
 
-Paste a YouTube link and let the conversation begin!
+Paste a YouTube link, select your model and let the conversation begin!
 `;
 
 module.exports = { markdownContentIntro };
