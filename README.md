@@ -1,30 +1,30 @@
 # YouTube Video Digest AI
 
-Welcome to the **YouTube Video Digest AI** repository! This project allows users to digest YouTube videos using Google Gemini and interactively ask questions about the content of the provided video URL.
+Welcome to the **YouTube Video Digest AI** repository! This project allows users to digest YouTube videos using Google Gemini or local LLM models via Ollama, and interactively ask questions about the content of the provided video URL.
 
 ## Features
-- **Digest YouTube Videos**: Analyze video content through Google Gemini or a local ollama model.
+- **Digest YouTube Videos**: Analyze video content through Google Gemini or a local LLM (Ollama).
 - **Interactive Q&A**: Ask questions related to the video and receive informative answers.
-
-  
-## Preview
-<img width="300" alt="intro" src="https://github.com/user-attachments/assets/97341e29-120b-4ecd-ac7f-54b6fa90c1aa">
-<img width="300" alt="chat" src="https://github.com/user-attachments/assets/966e8acd-82be-4d52-98c8-16231e058cd3">
+- **Local LLM Support**: Use a locally hosted LLM (Ollama) with various pre-loaded models for context-based interaction.
 
 ## Getting Started
 
 ### Prerequisites
 Before you begin, ensure you have the following installed on your machine:
-- [Node.js](https://nodejs.org/) (v14 or higher)
+- [Node.js](https://nodejs.org/) (v18 or higher)
 - [Yarn](https://yarnpkg.com/getting-started/install)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp#installation)
-- Your own gemini api key
+- [Ollama](https://ollama.com) (for local LLM support)
 
 ### Installation
 
 1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/zahnno/youtube-helper-ai
+   cd youtube-helper-ai
+   ```
 
-2. **Setup the Environment Variables**:
+2. **Setup the Environment Variables (GEMINI)**:
    - Create a `.env` file in the `server` directory.
    - Add your Google Gemini API key:
      ```
@@ -43,12 +43,15 @@ Before you begin, ensure you have the following installed on your machine:
      npm install
      ```
 
-4. **Install yt-dlp using Yarn**:
-   ```bash
-   yarn global add yt-dlp
-   ```
-
+4. **Install yt-dlp**:
    For detailed installation instructions, visit the [yt-dlp GitHub page](https://github.com/yt-dlp/yt-dlp#installation).
+
+5. **Run Ollama for Local LLM**:
+   - Make sure [Ollama](https://ollama.com) is installed on your machine.
+   - Start Ollama locally on `localhost:11434`:
+     ```bash
+     ollama serve
+     ```
 
 ### Running the Application
 
@@ -66,12 +69,15 @@ Before you begin, ensure you have the following installed on your machine:
      npm run start
      ```
 
-Your application should now be running locally! Open your browser and go to `http://localhost:3000` to interact with the YouTube Video Digest AI.
+Your application should now be running locally! Open your browser and go to `http://localhost:3000` to interact with the YouTube Video Digest AI. You can select between Google Gemini or a local LLM model (via Ollama) for chatting in the context of the video.
+
+### Local LLM Models
+When Ollama is running, you can select from a list of loaded models to interact with. Make sure the models are properly loaded into Ollama before starting the application.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. Contributions are welcome!
 
 ## Acknowledgments
 - [Google Gemini](https://cloud.google.com/gemini/docs)
+- [Ollama](https://ollama.com)
 - [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-
----
-
-Thank you for checking out the project! If you have any questions or feedback, feel free to reach out.
