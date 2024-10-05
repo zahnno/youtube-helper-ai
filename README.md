@@ -6,6 +6,7 @@ Welcome to the **YouTube Video Digest AI** repository! This project allows users
 - **Digest YouTube Videos**: Analyze video content through Google Gemini or a local LLM (Ollama).
 - **Interactive Q&A**: Ask questions related to the video and receive informative answers.
 - **Local LLM Support**: Use a locally hosted LLM (Ollama) with various pre-loaded models for context-based interaction.
+- **Download MP4/MP3**: Download Youtube video as MP4 or MP3
 
 ## Getting Started
 
