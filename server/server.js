@@ -4,6 +4,8 @@ const { getTranscript } = require('./transcriber');
 const { geminiAIChat } = require('./gemini');
 const { ollamaPrompt } = require('./ollamaPrompt');
 const { exec } = require('child_process');
+const path = require('path');
+
 require('dotenv').config();
 
 const app = express();
@@ -78,6 +80,36 @@ app.get('/models', (req, res) => {
     let models = stdout.match(/(\S+:\S+)/g) || [];
     if (process.env.GEMINI_API_KEY) models.push('Gemini');
     res.json({ models });
+  });
+});
+
+app.get('/download/mp4', (req, res) => {
+  const url = req.query.url
+  const outputDir = path.join(__dirname, 'downloads', '%(title)s.%(ext)s');
+
+  // Execute yt-dlp for MP4
+  exec(`yt-dlp -f best -o "${outputDir}" ${url}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error('Error downloading MP4:', stderr);
+      return res.status(500).json({ success: false, message: 'MP4 download failed.' });
+    }
+    console.log('MP4 Download Output:', stdout);
+    res.json({ success: true, message: 'MP4 download completed!' });
+  });
+});
+
+app.get('/download/mp3', (req, res) => {
+  const url = req.query.url
+  const outputDir = path.join(__dirname, 'downloads', '%(title)s.%(ext)s');
+
+  // Execute yt-dlp for MP3
+  exec(`yt-dlp -x --audio-format mp3 -o "${outputDir}" ${url}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error('Error downloading MP3:', stderr);
+      return res.status(500).json({ success: false, message: 'MP3 download failed.' });
+    }
+    console.log('MP3 Download Output:', stdout);
+    res.json({ success: true, message: 'MP3 download completed!' });
   });
 });
 

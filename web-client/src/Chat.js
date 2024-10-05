@@ -75,7 +75,7 @@ const Chat = ({ url, model }) => {
 
   const styles = {
     container: {
-      width: '600px',
+      width: '500px',
       margin: '0 auto',
       padding: '15px 40px',
       borderRadius: '8px',

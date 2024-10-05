@@ -3,6 +3,7 @@ import React from 'react';
 import { useState } from 'react';
 import YouTubePreview from './YouTubePreview';
 import Chat from './Chat';
+import Download from './Download';
 import ReactMarkdown from 'react-markdown';
 import { markdownContentIntro } from './introText';
 import Model from './Model';
@@ -69,6 +70,7 @@ function App() {
         />
       </form>
       { isValidUrl && <YouTubePreview url={link} /> }
+      { isValidUrl && <Download url={link} /> }
       { isValidUrl && <Chat url={link} model={model} /> }
       { link && !isValidUrl && <p style={{color: 'red'}}>Please enter a valid YouTube URL.</p> }
     </div>
