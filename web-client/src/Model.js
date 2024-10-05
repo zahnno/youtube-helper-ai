@@ -34,7 +34,7 @@ const Model = ({ setModel, model }) => {
           </option>
         ))}
       </select>
-      { models?.length > 0 && <p style={{color: 'red'}}>Uh oh, looks like no models were found. Try setting up your gemini key or making sure your ollama service is running locally</p> }
+      { models?.length === 0 && <p style={{color: 'red'}}>Uh oh, looks like no models were found. Try setting up your gemini key or making sure your ollama service is running locally</p> }
     </div>
   );
 };

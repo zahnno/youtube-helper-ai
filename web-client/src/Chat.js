@@ -138,7 +138,7 @@ const Chat = ({ url, model }) => {
       padding: '10px 15px',
       borderRadius: '20px',
       marginBottom: '10px',
-      maxWidth: '80%',
+      maxWidth: '75%',
       alignSelf: 'flex-end',
       boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
       position: 'relative',
