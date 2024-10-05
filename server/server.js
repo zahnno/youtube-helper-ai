@@ -71,14 +71,16 @@ app.post('/chat', async (req, res) => {
 
 // Endpoint to list available models
 app.get('/models', (req, res) => {
+  let models = [];
+  if (process.env.GEMINI_API_KEY) models.push('Gemini');
   exec('ollama list', (error, stdout, stderr) => {
     if (error) {
-      console.error('Execution error:', error);
-      return res.status(500).json({ error: 'Failed to list models' });
+      console.error('Ollama list execution error:', error);
+      return res.json({ models });
     }
+    const ollamaModels = stdout.match(/(\S+:\S+)/g) || [];
+    models = models.concat(ollamaModels);
 
-    let models = stdout.match(/(\S+:\S+)/g) || [];
-    if (process.env.GEMINI_API_KEY) models.push('Gemini');
     res.json({ models });
   });
 });
