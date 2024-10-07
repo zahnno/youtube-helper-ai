@@ -50,6 +50,15 @@ function getVideoInfo(url) {
   });
 }
 
+function generateString(length = 12) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
 function getTranscript(videoUrl, callback) {
     // Validate the YouTube URL
     if (!youtubeUrlRegex.test(videoUrl)) {
@@ -57,7 +66,8 @@ function getTranscript(videoUrl, callback) {
     }
 
     // Execute yt-dlp to fetch transcript
-    exec(`yt-dlp --skip-download --write-auto-subs --sub-langs "en" ${videoUrl}`, (error, stdout, stderr) => {
+    const fileName = generateString();
+    exec(`yt-dlp --skip-download --write-auto-subs --sub-langs "en" -o "./${fileName}.%(ext)s" ${videoUrl}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error: ${error.message}`);
             return callback({ status: 500, message: error.message });
@@ -67,27 +77,28 @@ function getTranscript(videoUrl, callback) {
             return callback({ status: 500, message: stderr });
         }
 
-        // Get the name of the downloaded VTT file
-        const vttFileName = stdout.match(/Writing video subtitles to: (.+\.vtt)/)[1];
+        // Append transcript extension
+        const fileNameExt = fileName + '.en.vtt'
 
         // Read the VTT file
-        fs.readFile(vttFileName, 'utf8', (err, vttData) => {
+        fs.readFile(fileNameExt, 'utf8', (err, vttData) => {
             if (err) {
                 console.error(`Error reading file: ${err.message}`);
                 return callback({ status: 500, message: err.message });
             }
 
-            // delete the file after reading
-            fs.unlink(vttFileName, (unlinkErr) => {
+            // Parse the VTT output
+            let parsedText = parseVTT(vttData);
+
+            fs.unlink(fileNameExt, (unlinkErr) => {
                 if (unlinkErr) console.error(`Error deleting file: ${unlinkErr.message}`);
             });
 
-            // Parse the VTT output
-            let parsedText = parseVTT(vttData);
             getVideoInfo(videoUrl).then((videoInfo) => {
                 parsedText += `\n\nTitle: ${videoInfo.title}\nDescription: ${videoInfo.description}\nChannel: ${videoInfo.channel}`;
                 return callback(null, parsedText);
             }).catch((error) => {
+                console.log('Error hit', error)
               return callback({ status: 500, message: error });
             });
         });
